@@ -1,1 +1,1 @@
-# PromiseBatching
+Create a server using Express that has an endpoint: /getPromise/:id. When a request is made, a new Promise should be created, which returns the specified id after 10 seconds. If the server is queried for the same id within the next 10 seconds, it should not create a new Promise but return the result of the previously processed one.
