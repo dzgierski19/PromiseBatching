@@ -22,26 +22,19 @@ const createLongTask = (taskId: string): Promise<string> => {
   return promise;
 };
 
-const getLongTask = (taskId: string) => {
-  if (promiseCache.has(taskId)) {
+const getLongTask = (taskId: string): Promise<string> => {
+  return new Promise<string>((resolve, reject) => {
+    if (promiseCache.has(taskId)) {
+      promiseCache.get(taskId).then((taskId) => {
+        resolve(taskId);
+      });
+    }
     createLongTask(taskId).then((taskId) => {
-      promiseCache.get(taskId);
       promiseCache.delete(taskId);
+      resolve(taskId);
     });
-  }
-  createLongTask(taskId).then((taskId) => {
-    promiseCache.delete(taskId);
   });
 };
-
-getLongTask("10");
-console.log(promiseCache);
-setTimeout(() => {
-  getLongTask("11");
-  getLongTask("10");
-  getLongTask("10");
-  console.log(promiseCache);
-}, 11000);
 
 // ASYNC/AWAIT
 
@@ -58,27 +51,31 @@ const createLongTaskAsync = (taskId: string): Promise<string> => {
 };
 
 const getLongTaskAsync = async (taskId: string) => {
-  if (asyncAwaitCache.has(taskId)) {
-    await createLongTaskAsync(taskId);
-    asyncAwaitCache.get(taskId);
-    asyncAwaitCache.delete(taskId);
+  try {
+    if (asyncAwaitCache.has(taskId)) {
+      const result = await asyncAwaitCache.get(taskId);
+      asyncAwaitCache.delete(taskId);
+      return result;
+    }
+    return createLongTaskAsync(taskId);
+  } catch (error) {
+    console.log(Error(error));
   }
-  await createLongTaskAsync(taskId);
-  asyncAwaitCache.delete(taskId);
 };
 
+console.time("a");
+console.log(asyncAwaitCache);
 getLongTaskAsync("10");
 console.log(asyncAwaitCache);
 setTimeout(() => {
-  getLongTaskAsync("11");
-  getLongTaskAsync("10");
-  getLongTaskAsync("10");
-  console.log(asyncAwaitCache);
-}, 11000);
+  getLongTaskAsync("10").then(() => console.timeEnd("a"));
+}, 1000);
 
-// app.get("/getPromise/:id", (req: Request, res) => {
-//   const promiseTask = req.params.id;
-//   res.send(promiseTask);
-// });
+console.log(asyncAwaitCache);
+console.log(asyncAwaitCache);
+// setTimeout(() => {
+//   console.log("aaa");
+//   console.log(asyncAwaitCache);
+// }, 2000);
 
-// http://localhost:3000/getPromise/123123
+//array funkcji ktora zwraca promisy
