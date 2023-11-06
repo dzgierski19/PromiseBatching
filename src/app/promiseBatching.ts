@@ -1,19 +1,11 @@
 import { Request } from "Express";
 
-// const express = require("express");
-// const app = express();
-// const port = 3000;
-
-// app.listen(port, () => {
-//   console.log(`Example app listening on port ${port}`);
-// });
-
 // PROMISES
 
-const promiseCache = new Map();
+export const promiseCache = new Map();
 
-const createLongTask = (taskId: string): Promise<string> => {
-  const promise: Promise<string> = new Promise((resolve) => {
+export const createLongTask = <T>(taskId: T): Promise<T> => {
+  const promise: Promise<T> = new Promise((resolve, reject) => {
     setTimeout(() => {
       resolve(taskId);
     }, 10000);
@@ -22,8 +14,8 @@ const createLongTask = (taskId: string): Promise<string> => {
   return promise;
 };
 
-const getLongTask = (taskId: string): Promise<string> => {
-  return new Promise<string>((resolve, reject) => {
+export const getLongTask = <T>(taskId: T): Promise<T> => {
+  return new Promise<T>((resolve, reject) => {
     if (promiseCache.has(taskId)) {
       promiseCache.get(taskId).then((taskId) => {
         resolve(taskId);
@@ -38,10 +30,10 @@ const getLongTask = (taskId: string): Promise<string> => {
 
 // ASYNC/AWAIT
 
-const asyncAwaitCache = new Map();
+export const asyncAwaitCache = new Map();
 
-const createLongTaskAsync = (taskId: string): Promise<string> => {
-  const promise: Promise<string> = new Promise((resolve) => {
+const createLongTaskAsync = <T>(taskId: T): Promise<T> => {
+  const promise: Promise<T> = new Promise((resolve, reject) => {
     setTimeout(() => {
       resolve(taskId);
     }, 10000);
@@ -50,32 +42,16 @@ const createLongTaskAsync = (taskId: string): Promise<string> => {
   return promise;
 };
 
-const getLongTaskAsync = async (taskId: string) => {
+export const getLongTaskAsync = async <T>(taskId: T): Promise<T> => {
   try {
     if (asyncAwaitCache.has(taskId)) {
       const result = await asyncAwaitCache.get(taskId);
       asyncAwaitCache.delete(taskId);
       return result;
     }
-    return createLongTaskAsync(taskId);
+    await createLongTaskAsync(taskId);
+    asyncAwaitCache.delete(taskId);
   } catch (error) {
-    console.log(Error(error));
+    throw error;
   }
 };
-
-console.time("a");
-console.log(asyncAwaitCache);
-getLongTaskAsync("10");
-console.log(asyncAwaitCache);
-setTimeout(() => {
-  getLongTaskAsync("10").then(() => console.timeEnd("a"));
-}, 1000);
-
-console.log(asyncAwaitCache);
-console.log(asyncAwaitCache);
-// setTimeout(() => {
-//   console.log("aaa");
-//   console.log(asyncAwaitCache);
-// }, 2000);
-
-//array funkcji ktora zwraca promisy
