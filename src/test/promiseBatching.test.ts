@@ -1,5 +1,6 @@
 import {
   asyncAwaitCache,
+  createLongTask,
   getLongTask,
   getLongTaskAsync,
   promiseCache,
@@ -12,6 +13,7 @@ describe("Promise batching test suite promises", () => {
   afterEach(() => {
     promiseCache.clear();
     asyncAwaitCache.clear();
+    jest.clearAllTimers();
   });
 
   describe("Async/Await testing suite", () => {
@@ -24,6 +26,13 @@ describe("Promise batching test suite promises", () => {
       getLongTaskAsync("10");
       await waitMiliseconds(5000);
       expect([...asyncAwaitCache.keys()]).toHaveLength(1);
+    });
+    it("Should have been called", async () => {
+      const promiseBatching = require("../app/promiseBatching");
+      const spy = jest.spyOn(promiseBatching, "getLongTask");
+      promiseBatching.getLongTask();
+      promiseBatching.getLongTask();
+      expect(spy).toHaveBeenCalledTimes(2);
     });
     it("Should resolve both tasks with the same id at the same time if provided second task is before resolving first one", async () => {
       getLongTaskAsync("10");
