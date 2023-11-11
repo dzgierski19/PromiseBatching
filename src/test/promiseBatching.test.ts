@@ -33,6 +33,8 @@ describe("Promise batching test suite promises", () => {
       promiseBatching.getLongTask();
       promiseBatching.getLongTask();
       expect(spy).toHaveBeenCalledTimes(2);
+      promiseBatching.getLongTask("mock");
+      expect(spy).toHaveBeenCalledWith("mock");
     });
     it("Should resolve both tasks with the same id at the same time if provided second task is before resolving first one", async () => {
       getLongTaskAsync("10");
